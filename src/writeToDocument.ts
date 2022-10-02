@@ -15,14 +15,17 @@ export function writeToDocument(checkedStudents: CheckedStudent[]) {
   });
 
   checkedStudents.forEach((student) => {
-    body.appendParagraph(student.name).setAttributes({
-      [DocumentApp.Attribute.BOLD]: true,
-    });
+    body
+      .appendParagraph(`${student.firstName} ${student.lastName}`)
+      .setAttributes({
+        [DocumentApp.Attribute.BOLD]: true,
+      });
 
-    const percent = Math.ceil(student.resultPerc * 100);
-    body.appendParagraph(`Правильных ответов ${percent}%\n`).setAttributes({
-      [DocumentApp.Attribute.BOLD]: false,
-    });
+    body
+      .appendParagraph(`Правильных ответов ${student.resultPercRound}%\n`)
+      .setAttributes({
+        [DocumentApp.Attribute.BOLD]: false,
+      });
 
     if (student.chosenErrors.length > 0)
       body

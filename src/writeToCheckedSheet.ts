@@ -11,16 +11,23 @@ export function writeToCheckedSheet(checkedStudents: CheckedStudent[]) {
   let currentRow = FIRST_ROW;
 
   checkedStudents.forEach((student) => {
-    checkedSheet.getRange(currentRow, 1).setValue(student.name);
+    checkedSheet
+      .getRange(currentRow, 1)
+      .setValue(`${student.firstName} ${student.lastName}`);
 
-    const percent = Math.ceil(student.resultPerc * 100);
     const percentCell = checkedSheet.getRange(currentRow, 2);
-    percentCell.setValue(`${percent}`);
-    if (percent >= PERCENT_TO_SUCCESS) percentCell.setBackground('#97f0bb');
+    percentCell.setValue(`${student.resultPercRound}`);
+
+    if (student.resultPercRound >= PERCENT_TO_SUCCESS)
+      percentCell.setBackground('#97f0bb');
 
     checkedSheet
       .getRange(currentRow, 3)
-      .setValue(`${student.resultText} ответов, ${student.resultPerc}`);
+      .setValue(
+        `${student.correctAnsAmount} правильных из ${
+          student.correctAnsAmount + student.invalidAnsAmount
+        } ответов, ${student.resultPerc}`
+      );
 
     const errorsChosenText = student.chosenErrors
       .map(({ number, questText, correctAnsText, givenAns }, idx) => {

@@ -1,4 +1,6 @@
 import { checkAnswers } from './checkAnswers';
+import { getInterTestStats } from './inter-test-stats/getInterTestStats';
+import { writeInterStatsToSheet } from './inter-test-stats/writeInterStatsToSheet';
 import { writeToCheckedSheet } from './writeToCheckedSheet';
 import { writeToDocument } from './writeToDocument';
 
@@ -10,4 +12,9 @@ function main() {
 function createDocument() {
   const checkedStudents = checkAnswers();
   writeToDocument(checkedStudents);
+}
+
+function writeInterTestStats() {
+  const stats = getInterTestStats();
+  writeInterStatsToSheet(stats);
 }

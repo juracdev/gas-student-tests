@@ -15,9 +15,12 @@ type PhraseError = ChosenError & {
 };
 
 export type CheckedStudent = {
-  name: string;
-  resultText: string;
+  firstName: string;
+  lastName: string;
   resultPerc: number;
+  resultPercRound: number;
+  correctAnsAmount: number;
+  invalidAnsAmount: number;
   chosenErrors: ChosenError[];
   phraseErrors: PhraseError[];
 };
@@ -42,7 +45,7 @@ function matchKey(answer: string, key: string): MatchKeyResult | null {
   }
 }
 
-export function checkPhraseAnswer(answer, keys) {
+export function checkPhraseAnswer(answer: string, keys: string[]) {
   const foundKeys: string[] = [];
   const unfoundKeys: string[] = [];
   let lastFoundIdx = 0;
@@ -68,34 +71,37 @@ export function checkPhraseAnswer(answer, keys) {
   };
 }
 
-export function checkAnswers(): CheckedStudent[] {
-  const questData = getQuestionsData();
-  const studentsData = getStudentsData();
+export function checkAnswers(sheetId?: string): CheckedStudent[] {
+  const questData = getQuestionsData(sheetId);
+  const studentsData = getStudentsData(sheetId);
 
   const checkedStudents: CheckedStudent[] = [];
 
-  studentsData.forEach(({ name, answers }) => {
+  studentsData.forEach(({ firstName, lastName, answers }) => {
     const checkedStudent: CheckedStudent = {
-      name,
+      firstName,
+      lastName,
       chosenErrors: [],
       phraseErrors: [],
       resultPerc: 0,
-      resultText: '',
+      resultPercRound: 0,
+      correctAnsAmount: 0,
+      invalidAnsAmount: 0,
     };
 
     answers.forEach((ans, idx) => {
       const quest = questData[idx];
-      if (quest.isAnswerChosen) {
-        if (ans !== quest.keys)
+      if (ans.isChoosen) {
+        if (ans.choosenVariant !== quest.keys)
           checkedStudent.chosenErrors.push({
             number: quest.number,
             questText: quest.question,
-            givenAns: ans,
+            givenAns: ans.answerText,
             correctAnsText: quest.answer,
           });
       } else {
         const { foundKeys, unfoundKeys, isCorrectOrder } = checkPhraseAnswer(
-          ans,
+          ans.answerText,
           quest.keys as string[]
         );
         const isOrderError = quest.isOrdered && !isCorrectOrder;
@@ -103,7 +109,7 @@ export function checkAnswers(): CheckedStudent[] {
           checkedStudent.phraseErrors.push({
             number: quest.number,
             questText: quest.question,
-            givenAns: ans,
+            givenAns: ans.answerText,
             correctAnsText: quest.answer,
             foundKeys,
             unfoundKeys,
@@ -113,13 +119,15 @@ export function checkAnswers(): CheckedStudent[] {
       }
     });
 
-    const uncorrectAnsCount =
+    const invalidAnsAmount =
       checkedStudent.phraseErrors.length + checkedStudent.chosenErrors.length;
-    const correctAnsCount = answers.length - uncorrectAnsCount;
+    const correctAnsCount = answers.length - invalidAnsAmount;
     const perc = (correctAnsCount / answers.length).toFixed(3);
 
-    checkedStudent.resultText = `${correctAnsCount} правильных из ${answers.length}`;
+    checkedStudent.correctAnsAmount = correctAnsCount;
+    checkedStudent.invalidAnsAmount = invalidAnsAmount;
     checkedStudent.resultPerc = Number(perc);
+    checkedStudent.resultPercRound = Math.ceil(checkedStudent.resultPerc * 100);
 
     checkedStudents.push(checkedStudent);
   });
