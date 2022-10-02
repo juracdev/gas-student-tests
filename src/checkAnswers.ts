@@ -16,8 +16,10 @@ type PhraseError = ChosenError & {
 
 export type CheckedStudent = {
   name: string;
-  resultText: string;
   resultPerc: number;
+  resultPercRound: number;
+  correctAnsAmount: number;
+  invalidAnsAmount: number;
   chosenErrors: ChosenError[];
   phraseErrors: PhraseError[];
 };
@@ -68,9 +70,9 @@ export function checkPhraseAnswer(answer, keys) {
   };
 }
 
-export function checkAnswers(): CheckedStudent[] {
-  const questData = getQuestionsData();
-  const studentsData = getStudentsData();
+export function checkAnswers(sheetId?: string): CheckedStudent[] {
+  const questData = getQuestionsData(sheetId);
+  const studentsData = getStudentsData(sheetId);
 
   const checkedStudents: CheckedStudent[] = [];
 
@@ -80,7 +82,9 @@ export function checkAnswers(): CheckedStudent[] {
       chosenErrors: [],
       phraseErrors: [],
       resultPerc: 0,
-      resultText: '',
+      resultPercRound: 0,
+      correctAnsAmount: 0,
+      invalidAnsAmount: 0,
     };
 
     answers.forEach((ans, idx) => {
@@ -113,13 +117,15 @@ export function checkAnswers(): CheckedStudent[] {
       }
     });
 
-    const uncorrectAnsCount =
+    const invalidAnsAmount =
       checkedStudent.phraseErrors.length + checkedStudent.chosenErrors.length;
-    const correctAnsCount = answers.length - uncorrectAnsCount;
+    const correctAnsCount = answers.length - invalidAnsAmount;
     const perc = (correctAnsCount / answers.length).toFixed(3);
 
-    checkedStudent.resultText = `${correctAnsCount} правильных из ${answers.length}`;
+    checkedStudent.correctAnsAmount = correctAnsCount;
+    checkedStudent.invalidAnsAmount = invalidAnsAmount;
     checkedStudent.resultPerc = Number(perc);
+    checkedStudent.resultPercRound = Math.ceil(checkedStudent.resultPerc * 100);
 
     checkedStudents.push(checkedStudent);
   });

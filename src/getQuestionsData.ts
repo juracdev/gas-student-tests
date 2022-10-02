@@ -13,8 +13,10 @@ function checkIsAnswerChosen(ans: string) {
   return ans.length === 1 && CHOSEN_ANS_KEYS.includes(ans.toUpperCase());
 }
 
-export function getQuestionsData(): QuestionData[] {
-  const questSheet = SpreadsheetApp.getActive().getSheetByName('Вопросы');
+export function getQuestionsData(sheetId?: string): QuestionData[] {
+  const questSheet = (
+    sheetId ? SpreadsheetApp.openById(sheetId) : SpreadsheetApp.getActive()
+  ).getSheetByName('Вопросы');
   const values = questSheet!.getDataRange().getValues().slice(1);
 
   return values.map(([number, question, answer, key, isOrderedStr]) => {

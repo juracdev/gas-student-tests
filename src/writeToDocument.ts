@@ -19,10 +19,11 @@ export function writeToDocument(checkedStudents: CheckedStudent[]) {
       [DocumentApp.Attribute.BOLD]: true,
     });
 
-    const percent = Math.ceil(student.resultPerc * 100);
-    body.appendParagraph(`Правильных ответов ${percent}%\n`).setAttributes({
-      [DocumentApp.Attribute.BOLD]: false,
-    });
+    body
+      .appendParagraph(`Правильных ответов ${student.resultPercRound}%\n`)
+      .setAttributes({
+        [DocumentApp.Attribute.BOLD]: false,
+      });
 
     if (student.chosenErrors.length > 0)
       body
