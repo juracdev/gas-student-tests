@@ -14,6 +14,7 @@ export function getQuestionsData(sheetId?: string): QuestionData[] {
 
   return values.map(([number, question, answer, key, isOrderedStr]) => {
     key = `${key}`;
+    answer = `${answer}`;
     const isChoosen = Boolean(answer.match(/^[АБВГД]\)/i));
     return {
       number,

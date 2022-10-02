@@ -1,17 +1,50 @@
 import { checkAnswers } from '../checkAnswers';
+import { getInterTestSettings } from './getInterTestSettings';
 
-const SETTINGS_SHEET_NAME = 'Настройки';
+export type StudentsInterStat = {
+  [key: string]: InterTestResult[];
+};
 
-export function getInterTestStats() {
-  const settingsSheet =
-    SpreadsheetApp.getActive().getSheetByName(SETTINGS_SHEET_NAME);
+type InterTestResult = {
+  title: string;
+  perc: number;
+  invalidAnsAmount: number;
+};
 
-  const settingsValues = settingsSheet!.getDataRange().getValues().slice(1);
+export function getInterTestStats(): StudentsInterStat {
+  const settings = getInterTestSettings();
 
-  settingsValues.forEach(([name, id]) => {
-    const testResult = checkAnswers(id);
+  const interStat: StudentsInterStat = {};
 
-    // console.log(name);
-    // console.log(testResult);
+  settings.forEach(({ title, sheetId }) => {
+    const testResults = checkAnswers(sheetId);
+
+    if (Object.keys(interStat).length === 0) {
+      testResults.forEach(({ lastName }) => {
+        interStat[lastName.toLowerCase().trim()] = [];
+      });
+    }
+
+    testResults.forEach((tr) => {
+      const lastName = tr.lastName.toLowerCase().trim();
+      if (interStat[lastName]) {
+        interStat[lastName].push({
+          title,
+          perc: tr.resultPercRound,
+          invalidAnsAmount: tr.invalidAnsAmount,
+        });
+      } else {
+        console.log(`NOT FOUND ${lastName}`);
+        interStat[lastName.toLowerCase().trim()] = [
+          {
+            title,
+            perc: tr.resultPercRound,
+            invalidAnsAmount: tr.invalidAnsAmount,
+          },
+        ];
+      }
+    });
   });
+
+  return interStat;
 }
