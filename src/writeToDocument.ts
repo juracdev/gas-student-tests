@@ -15,9 +15,11 @@ export function writeToDocument(checkedStudents: CheckedStudent[]) {
   });
 
   checkedStudents.forEach((student) => {
-    body.appendParagraph(student.name).setAttributes({
-      [DocumentApp.Attribute.BOLD]: true,
-    });
+    body
+      .appendParagraph(`${student.firstName} ${student.lastName}`)
+      .setAttributes({
+        [DocumentApp.Attribute.BOLD]: true,
+      });
 
     body
       .appendParagraph(`Правильных ответов ${student.resultPercRound}%\n`)

@@ -11,7 +11,9 @@ export function writeToCheckedSheet(checkedStudents: CheckedStudent[]) {
   let currentRow = FIRST_ROW;
 
   checkedStudents.forEach((student) => {
-    checkedSheet.getRange(currentRow, 1).setValue(student.name);
+    checkedSheet
+      .getRange(currentRow, 1)
+      .setValue(`${student.firstName} ${student.lastName}`);
 
     const percentCell = checkedSheet.getRange(currentRow, 2);
     percentCell.setValue(`${student.resultPercRound}`);

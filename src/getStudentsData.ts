@@ -1,6 +1,18 @@
 const ANSWERS_SHEET_NAME = 'Ответы на форму';
 
-export function getStudentsData(sheetId?: string) {
+type StudentData = {
+  firstName: string;
+  lastName: string;
+  answers: StudentAnswer[];
+};
+
+type StudentAnswer = {
+  answerText: string;
+  isChoosen: boolean;
+  choosenVariant?: string;
+};
+
+export function getStudentsData(sheetId?: string): StudentData[] {
   const answSheet = (
     sheetId ? SpreadsheetApp.openById(sheetId) : SpreadsheetApp.getActive()
   ).getSheetByName(ANSWERS_SHEET_NAME)!;
@@ -9,14 +21,18 @@ export function getStudentsData(sheetId?: string) {
     .getDataRange()
     .getValues()
     .slice(1)
-    .map(([timestamp, firstname, lastname, ...other]) => {
-      const answers = other.map((ans) => {
+    .map(([timestamp, lastName, firstName, ...other]) => {
+      const answers: StudentAnswer[] = other.map((ans: string) => {
         ans = `${ans}`;
         const match = ans.match(/^[АБВГД]\)/i);
-        console.log(ans, match);
-        return match ? match[0].slice(0, 1) : ans;
+        const isChoosen = Boolean(match);
+        return {
+          answerText: ans,
+          isChoosen,
+          choosenVariant: isChoosen ? match![0].slice(0, 1) : undefined,
+        };
       });
 
-      return { name: `${lastname} ${firstname}`, answers };
+      return { firstName, lastName, answers };
     });
 }

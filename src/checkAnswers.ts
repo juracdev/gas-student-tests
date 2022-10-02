@@ -15,7 +15,8 @@ type PhraseError = ChosenError & {
 };
 
 export type CheckedStudent = {
-  name: string;
+  firstName: string;
+  lastName: string;
   resultPerc: number;
   resultPercRound: number;
   correctAnsAmount: number;
@@ -44,7 +45,7 @@ function matchKey(answer: string, key: string): MatchKeyResult | null {
   }
 }
 
-export function checkPhraseAnswer(answer, keys) {
+export function checkPhraseAnswer(answer: string, keys: string[]) {
   const foundKeys: string[] = [];
   const unfoundKeys: string[] = [];
   let lastFoundIdx = 0;
@@ -76,9 +77,10 @@ export function checkAnswers(sheetId?: string): CheckedStudent[] {
 
   const checkedStudents: CheckedStudent[] = [];
 
-  studentsData.forEach(({ name, answers }) => {
+  studentsData.forEach(({ firstName, lastName, answers }) => {
     const checkedStudent: CheckedStudent = {
-      name,
+      firstName,
+      lastName,
       chosenErrors: [],
       phraseErrors: [],
       resultPerc: 0,
@@ -89,17 +91,17 @@ export function checkAnswers(sheetId?: string): CheckedStudent[] {
 
     answers.forEach((ans, idx) => {
       const quest = questData[idx];
-      if (quest.isAnswerChosen) {
-        if (ans !== quest.keys)
+      if (ans.isChoosen) {
+        if (ans.choosenVariant !== quest.keys)
           checkedStudent.chosenErrors.push({
             number: quest.number,
             questText: quest.question,
-            givenAns: ans,
+            givenAns: ans.answerText,
             correctAnsText: quest.answer,
           });
       } else {
         const { foundKeys, unfoundKeys, isCorrectOrder } = checkPhraseAnswer(
-          ans,
+          ans.answerText,
           quest.keys as string[]
         );
         const isOrderError = quest.isOrdered && !isCorrectOrder;
@@ -107,7 +109,7 @@ export function checkAnswers(sheetId?: string): CheckedStudent[] {
           checkedStudent.phraseErrors.push({
             number: quest.number,
             questText: quest.question,
-            givenAns: ans,
+            givenAns: ans.answerText,
             correctAnsText: quest.answer,
             foundKeys,
             unfoundKeys,
