@@ -1,5 +1,5 @@
 function isTextChosenVarian(text: string): boolean {
-  return Boolean(text.match(/^[АБВГД]\)/i));
+  return Boolean(text.match(/^[АБВГДЕ]\)/i));
 }
 
 export type ParsedQuestion = {
@@ -18,7 +18,7 @@ export function parseTestQuestions(
   const questions: ParsedQuestion[] = [];
 
   do {
-    findRange = body.findText(`^${qNumber}\\.`);
+    findRange = body.findText(`^\s*${qNumber}\\.`);
 
     if (findRange === null) {
       console.log(`Закончили на ${qNumber - 1} вопросе`);

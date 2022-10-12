@@ -24,7 +24,7 @@ export function getStudentsData(sheetId?: string): StudentData[] {
     .map(([timestamp, lastName, firstName, ...other]) => {
       const answers: StudentAnswer[] = other.map((ans: string) => {
         ans = `${ans}`;
-        const match = ans.match(/^[АБВГД]\)/i);
+        const match = ans.match(/^[АБВГДЕ]\)/i);
         const isChoosen = Boolean(match);
         return {
           answerText: ans,
